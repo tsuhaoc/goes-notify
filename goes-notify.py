@@ -3,7 +3,7 @@
 # Note: for setting up email with sendmail, see: http://linuxconfig.org/configuring-gmail-as-sendmail-email-relay
 
 import argparse
-import commands
+import subprocess
 import json
 import logging
 import smtplib
@@ -84,12 +84,13 @@ def notify_send_email(dates, current_apt, settings, use_gmail=False):
 
         server.sendmail(sender, recipient, msg.as_string())
         server.quit()
+        logging.info('Sent email')
     except Exception:
         logging.exception('Failed to send succcess e-mail.')
         log(e)
 
 def notify_osx(msg):
-    commands.getstatusoutput("osascript -e 'display notification \"%s\" with title \"Global Entry Notifier\"'" % msg)
+    subprocess.getstatusoutput("osascript -e 'display notification \"%s\" with title \"Global Entry Notifier\"'" % msg)
 
 def notify_sms(settings, dates):
     for avail_apt in dates: 
@@ -141,9 +142,10 @@ def main(settings):
                     dates.append(dtp.strftime('%A, %B %d @ %I:%M%p'))
 
         if not dates:
+            logging.info('No appointment found before ' + settings['current_interview_date_str'])
             return
 
-        hash = hashlib.md5(''.join(dates) + current_apt.strftime('%B %d, %Y @ %I:%M%p')).hexdigest()
+        hash = hashlib.md5((''.join(dates) + current_apt.strftime('%B %d, %Y @ %I:%M%p')).encode('utf-8')).hexdigest()
         fn = "goes-notify_{0}.txt".format(hash)
         if settings.get('no_spamming') and os.path.exists(fn):
             return
@@ -210,7 +212,7 @@ if __name__ == '__main__':
             settings = json.load(json_file)
 
             # merge args into settings IF they're True
-            for key, val in arguments.iteritems():
+            for key, val in arguments.items():
                 if not arguments.get(key): continue
                 settings[key] = val
 

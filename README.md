@@ -14,7 +14,7 @@ https://github.com/davidofwatkins/ge-cancellation-checker
 
 # Usage
 
-Run the script with `python`: `python2 goes-notify.py`
+Run the script with `python`: `python3 goes-notify.py`
 
 If you're running this on a machine you'll be using while it's searching, you can set the `no-email` config setting and receive a local macOS notification when the script finds a new appointment.
 
